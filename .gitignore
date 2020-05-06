@@ -1,0 +1,7 @@
+.swp
+
+OI-hipster*.box
+
+packer_cache/
+output/
+.vagrant
