@@ -1,3 +1,15 @@
+// Link list
+// https://github.com/omniosorg/kayak/blob/master/build/ami
+// https://github.com/omniosorg/kayak/blob/master/lib/hvm_help.sh
+// https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instancedata-data-retrieval.html
+// https://github.com/OpenFlowLabs/ec2-instance-metadata-rs
+// https://www.packer.io/docs/post-processors/shell-local/
+// https://docs.aws.amazon.com/vm-import/latest/userguide/vmimport-image-import.html
+// https://docs.aws.amazon.com/marketplace/latest/userguide/product-submission.html
+// https://github.com/EugenMayer/opnsense-starterkit/issues/2
+//
+
+
 variable "oi_version" {
   type = string
   default = "20200504"
