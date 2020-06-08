@@ -1,0 +1,10 @@
+[
+  {
+    "Description": "First disk",
+    "Format": "vmdk",
+    "UserBucket": {
+      "S3Bucket": "illumosimport",
+      "S3Key": "packer-ami-build.vmdk"
+    }
+  }
+]

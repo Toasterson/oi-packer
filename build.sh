@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-packer build -parallel=false hipster.pkr.hcl
+packer build -var-file=.packer-vars.json -parallel=false hipster.pkr.hcl

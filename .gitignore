@@ -5,3 +5,5 @@ OI-hipster*.box
 packer_cache/
 output/
 .vagrant
+
+.packer-vars.json

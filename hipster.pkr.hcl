@@ -13,9 +13,29 @@ variable "ssh_username" {
   default = "root"
 }
 
-variable "ssh_password" {
+variable "vagrant_ssh_password" {
   type = string
   default = "vagrant"
+}
+
+variable "ami_ssh_password" {
+  type = string
+}
+
+variable "aws_access_key" {
+  type = string
+}
+
+variable "aws_secret_key" {
+  type = string
+}
+
+variable "aws_region" {
+  type = string
+}
+
+variable "build_version" {
+  type = string
 }
 
 locals {
@@ -28,13 +48,30 @@ locals {
     "<f2><wait5>",
     "<right><wait5>",
     "<enter><wait5>",
+  ]
+  boot_command_installer_mbr = [
+    "<down><wait5>",
     "<f2><wait5>",
+    "<f2><wait5>",
+  ]
+  boot_command_installer_uefi = [
+    "<f2><wait5>",
+  ]
+  boot_command_installer_net_and_time = [
     "<down><wait><down><wait><down><wait>",
     "<f2><wait5>",
     "<f2><wait5>",
     "<f2><wait5>",
-    "vagrant<tab>",
-    "vagrant<tab>",
+  ]
+  boot_command_installer_root_pw_vagrant = [
+    "${var.vagrant_ssh_password}<tab>",
+    "${var.vagrant_ssh_password}<tab>",
+  ]
+  boot_command_installer_root_pw_ami = [
+    "${var.ami_ssh_password}<tab>",
+    "${var.ami_ssh_password}<tab>",
+  ]
+  boot_command_installer_finish = [
     "<f2><wait5>",
     "<f2><wait5>",
     "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -47,7 +84,12 @@ locals {
     "<wait10><wait10><wait10><wait10><wait10><wait10>",
     "<wait10><wait10><wait10><wait10><wait10><wait10>",
     "<wait10><wait10><wait10><wait10><wait10><wait10>",
-    "${var.ssh_username}<enter><wait>${var.ssh_password}<enter><wait5>",
+  ]
+  boot_command_installer_finish_login_ami = [
+    "${var.ssh_username}<enter><wait>${var.ami_ssh_password}<enter><wait5>",
+  ]
+  boot_command_installer_finish_login_vagrant = [
+    "${var.ssh_username}<enter><wait>${var.vagrant_ssh_password}<enter><wait5>",
   ]
   boot_command_network_virtualbox = [
     "ipadm create-if e1000g0<enter><wait>",
@@ -72,9 +114,14 @@ locals {
   output_directory = "output"
 }
 
-source "qemu" "oi-hipster" {
+source "qemu" "vagrant-box" {
   boot_command = concat(
   local.boot_command_installer,
+  local.boot_command_installer_uefi,
+  local.boot_command_installer_net_and_time,
+  local.boot_command_installer_root_pw_vagrant,
+  local.boot_command_installer_finish,
+  local.boot_command_installer_finish_login_vagrant,
   local.boot_command_network_qemu,
   local.boot_command_initial_config
   )
@@ -85,7 +132,7 @@ source "qemu" "oi-hipster" {
   iso_checksum_type = local.iso_checksum_type
   shutdown_command = local.shutdown_command
   ssh_username = var.ssh_username
-  ssh_password = var.ssh_password
+  ssh_password = var.vagrant_ssh_password
   ssh_port = local.ssh_port
   output_directory = local.output_directory
   headless = local.headless
@@ -100,9 +147,14 @@ source "qemu" "oi-hipster" {
   ]
 }
 
-source "virtualbox-iso" "oi-hipster" {
+source "virtualbox-iso" "vagrant-box" {
   boot_command = concat(
   local.boot_command_installer,
+  local.boot_command_installer_uefi,
+  local.boot_command_installer_net_and_time,
+  local.boot_command_installer_root_pw_vagrant,
+  local.boot_command_installer_finish,
+  local.boot_command_installer_finish_login_vagrant,
   local.boot_command_network_virtualbox,
   local.boot_command_initial_config
   )
@@ -113,7 +165,7 @@ source "virtualbox-iso" "oi-hipster" {
   iso_checksum_type = local.iso_checksum_type
   shutdown_command = local.shutdown_command
   ssh_username = var.ssh_username
-  ssh_password = var.ssh_password
+  ssh_password = var.vagrant_ssh_password
   ssh_port = local.ssh_port
   output_directory = local.output_directory
   headless = local.headless
@@ -128,51 +180,141 @@ source "virtualbox-iso" "oi-hipster" {
   ]
 }
 
+source "virtualbox-iso" "ami-build" {
+  boot_command = concat(
+  local.boot_command_installer,
+  local.boot_command_installer_mbr,
+  local.boot_command_installer_net_and_time,
+  local.boot_command_installer_root_pw_ami,
+  local.boot_command_installer_finish,
+  local.boot_command_installer_finish_login_ami,
+  local.boot_command_network_virtualbox,
+  local.boot_command_initial_config
+  )
+  boot_wait = local.boot_wait
+  disk_size = local.disk_size
+  iso_checksum = var.iso_checksum
+  iso_url = local.iso_url
+  iso_checksum_type = local.iso_checksum_type
+  shutdown_command = local.shutdown_command
+  ssh_username = var.ssh_username
+  ssh_password = var.ami_ssh_password
+  ssh_port = local.ssh_port
+  output_directory = local.output_directory
+  headless = local.headless
+  guest_os_type = "OpenSolaris_64"
+  hard_drive_interface = "sata"
+  vboxmanage = [
+    [ "modifyvm", "{{.Name}}", "--memory", "6144" ],
+    [ "modifyvm", "{{.Name}}", "--cpus", "1" ],
+    [ "modifyvm", "{{.Name}}", "--vram", "16" ],
+    [ "modifyvm", "{{.Name}}", "--nictype1", "82545EM" ],
+    [ "setextradata", "global", "GUI/SuppressMessages", "all" ]
+  ]
+  format = "ova"
+}
+
+source "qemu" "ami-build" {
+  boot_command = concat(
+  local.boot_command_installer,
+  local.boot_command_installer_mbr,
+  local.boot_command_installer_net_and_time,
+  local.boot_command_installer_root_pw_ami,
+  local.boot_command_installer_finish,
+  local.boot_command_installer_finish_login_ami,
+  local.boot_command_network_qemu,
+  local.boot_command_initial_config
+  )
+  boot_wait = local.boot_wait
+  disk_size = local.disk_size
+  iso_checksum = var.iso_checksum
+  iso_url =  local.iso_url
+  iso_checksum_type = local.iso_checksum_type
+  shutdown_command = local.shutdown_command
+  ssh_username = var.ssh_username
+  ssh_password = var.ami_ssh_password
+  ssh_port = local.ssh_port
+  output_directory = local.output_directory
+  headless = local.headless
+  accelerator = "kvm"
+  format = "qcow2"
+  net_device = "virtio-net"
+  disk_interface = "virtio"
+  vnc_bind_address = "127.0.0.1"
+  qemuargs = [
+    ["-m", "4096"],
+    ["-cpu", "qemu64,+xsave"]
+  ]
+}
+
 build {
   sources = [
-    "source.virtualbox-iso.oi-hipster",
+    "source.qemu.ami-build",
   ]
 
   provisioner "shell" {
     scripts = [
       "scripts/update.sh",
-      "scripts/virtualbox-vmtools.sh",
-      "scripts/vagrant.sh",
-      "scripts/cleanup.sh"
+      "scripts/cleanup.sh",
+      "scripts/ami.sh",
     ]
     expect_disconnect = true
   }
 
-  post-processor "vagrant" {
-    compression_level = 9
-    output = "OI-hipster-${var.oi_version}-{{.Provider}}.box"
-  }
+//  post-processor "amazon-import" {
+//    access_key = var.aws_access_key
+//    secret_key = var.aws_secret_key
+//    region = var.aws_region
+//    s3_bucket_name = "illumosimport"
+//    ami_description = "OpenIndiana AMI Build"
+//    ami_name = "OpenIndiana v${var.build_version}"
+//    format = "ova"
+//    license_type = "BYOL"
+//    tags = {
+//      Description = "OpenIndiana official AMI build ${var.oi_version}"
+//    }
+//  }
+
 }
 
-build {
-  sources = [
-    "source.qemu.oi-hipster"
-  ]
-
-  provisioner "shell" {
-    script = "scripts/update.sh"
-    expect_disconnect = true
-  }
-
-  provisioner "shell" {
-    script = "scripts/vagrant.sh"
-  }
-
-  provisioner "shell" {
-    script = "scripts/cleanup.sh"
-  }
-
-  provisioner "shell" {
-    script = "scripts/cleanup-qemu.sh"
-  }
-
-  post-processor "vagrant" {
-    compression_level = 9
-    output = "OI-hipster-${var.oi_version}-{{.Provider}}.box"
-  }
-}
+//build {
+//  sources = [
+//    "source.virtualbox-iso.vagrant-box",
+//  ]
+//
+//  provisioner "shell" {
+//    scripts = [
+//      "scripts/update.sh",
+//      "scripts/virtualbox-vmtools.sh",
+//      "scripts/vagrant.sh",
+//      "scripts/cleanup.sh"
+//    ]
+//    expect_disconnect = true
+//  }
+//
+//  post-processor "vagrant" {
+//    compression_level = 9
+//    output = "OI-hipster-${var.build_version}-{{.Provider}}.box"
+//  }
+//}
+//
+//build {
+//  sources = [
+//    "source.qemu.vagrant-box"
+//  ]
+//
+//  provisioner "shell" {
+//    script = [
+//          "scripts/update.sh",
+//          "scripts/vagrant.sh",
+//          "scripts/cleanup.sh",
+//          "scripts/cleanup-qemu.sh"
+//    ]
+//    expect_disconnect = true
+//  }
+//
+//  post-processor "vagrant" {
+//    compression_level = 9
+//    output = "OI-hipster-${var.build_version}-{{.Provider}}.box"
+//  }
+//}
