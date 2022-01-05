@@ -1,11 +1,5 @@
 #!/bin/bash -eux
 
-echo "==> Remove nvidia driver"
-pkg uninstall driver/graphics/nvidia-390
-
-echo "==> Not allowing root login via SSH"
-sed -i -e 's/^PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-
 echo "==> Cleaning up SSH host keys"
 # If the key doesn't exist, we shouldn't end with
 # non-zero return code, as packer will fail.
