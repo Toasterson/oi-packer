@@ -14,9 +14,9 @@ tar -xzf rust-1.58.1-x86_64-unknown-illumos.tar.gz
 
 mv rust-1.58.1-x86_64-unknown-illumos /opt/rust
 
-export LD_LIBRARY_PATH=~/opt/rust/rustc/lib:$LD_LIBRARY_PATH
-export PATH=~/opt/rust/rustc/bin:$PATH
-export PATH=~/opt/rust/cargo/bin:$PATH
+export LD_LIBRARY_PATH=K/opt/rust/rustc/lib:$LD_LIBRARY_PATH
+export PATH=/opt/rust/rustc/bin:$PATH
+export PATH=/opt/rust/cargo/bin:$PATH
 
 cd metadata-agent
 
