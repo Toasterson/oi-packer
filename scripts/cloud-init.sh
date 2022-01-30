@@ -1,28 +1,19 @@
 #!/usr/bin/bash
 set -ex
 
-pkg install -v gcc-7 system/header
+pkg install -v gcc-11 system/header git
 
-wget https://github.com/omniosorg/cloud-init/archive/refs/tags/illumos-21.3.tar.gz
-gtar -xzf illumos-21.3.tar.gz
+git clone https://github.com/Toasterson/metadata-agent.git metadata-agent
 
-cd cloud-init-illumos-21.3/
+wget https://static.rust-lang.org/dist/rust-1.58.1-x86_64-unknown-illumos.tar.gz
 
-python3 -mpip install -U -r requirements.txt
+tar -xzf rust-1.58.1-x86_64-unknown-illumos.tar.gz
 
-python3 setup.py install --init-system=smf
+./rust-1.58.1-x86_64-unknown-illumos/install.sh
 
-rm -rf cloud-init-illumos-21.3/ illumos-21.3.tar.gz
+cd metadata-agent
 
-#curl http://$PACKER_HTTP_ADDR/userscript/userscript.sh > /usr/lib/userscript.sh
-#curl http://$PACKER_HTTP_ADDR/userscript/userscript.xml > /lib/svc/manifest/system/userscript.xml
-#chmod +x /usr/lib/userscript.sh
-
-#svccfg import /lib/svc/manifest/system/userscript.xml
-
-#mkdir -p /var/metadata/
-#curl http://$PACKER_HTTP_ADDR/userscript/init_fallback_with_dhcp.sh > /var/metadata/userscript
-#chmod +x /var/metadata/userscript
+MODE=release make install
 
 # Setup OS to run console con COM0
 cat <<EOF > /boot/conf.d/cloud-init-serial.conf
