@@ -11,6 +11,10 @@ tar -xzf rust-1.58.1-x86_64-unknown-illumos.tar.gz
 
 ./rust-1.58.1-x86_64-unknown-illumos/install.sh
 
+# Source Installed Rust environment
+# shellcheck source=./env
+source "$HOME"/.cargo/env
+
 cd metadata-agent
 
 MODE=release gmake install
