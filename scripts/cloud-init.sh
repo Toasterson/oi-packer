@@ -13,7 +13,7 @@ tar -xzf rust-1.58.1-x86_64-unknown-illumos.tar.gz
 
 cd metadata-agent
 
-MODE=release make install
+MODE=release gmake install
 
 # Setup OS to run console con COM0
 cat <<EOF > /boot/conf.d/cloud-init-serial.conf
