@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 set -ex
 
-pkg install -v system/library/gcc-11-runtime system/library/gcc-11-runtime system/header git
+pkg install -v developer/gcc-11 system/library/gcc-11-runtime system/header git
 
 git clone https://github.com/Toasterson/metadata-agent.git metadata-agent
 
