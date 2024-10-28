@@ -17,17 +17,12 @@ packer {
 
 variable "build_version" {
   type = string
-  default = "20210430"
+  default = "20240426"
 }
 
 variable "iso_version" {
   type = string
-  default = "20210430"
-}
-
-variable "iso_checksum" {
-  type = string
-  default = "aa20966d6b6fd4d7651683305f21c6b315ca4c5a69b940a8a02fbbb6ccba121e"
+  default = "20240426"
 }
 
 variable "ssh_username" {
@@ -41,7 +36,7 @@ variable "ssh_password" {
 }
 
 locals {
-  iso_url = "http://dlc.openindiana.org/isos/hipster/${var.iso_version}/OI-hipster-text-${var.iso_version}.iso"
+  iso_url = "https://dlc.openindiana.org/isos/hipster/${var.iso_version}/OI-hipster-text-${var.iso_version}.iso"
   boot_command_installer = [
     "47<enter><wait5>",
     "7<enter><wait5><wait5><wait5><wait5>",
@@ -59,6 +54,7 @@ locals {
     "vagrant<tab>",
     "<f2><wait5>",
     "<f2><wait5>",
+    "<wait10><wait10><wait10><wait10><wait10><wait10>",
     "<wait10><wait10><wait10><wait10><wait10><wait10>",
     "<wait10><wait10><wait10><wait10><wait10><wait10>",
     "<wait10><wait10><wait10><wait10><wait10><wait10>",
@@ -92,6 +88,7 @@ locals {
   headless = true
   ssh_port = 22
   output_directory = "output"
+  iso_checksum = "file:https://dlc.openindiana.org/isos/hipster/${var.iso_version}/OI-hipster-text-${var.iso_version}.iso.sha256sum"
 }
 
 source "qemu" "oi-hipster" {
@@ -102,7 +99,7 @@ source "qemu" "oi-hipster" {
   )
   boot_wait = local.boot_wait
   disk_size = local.disk_size
-  iso_checksum = var.iso_checksum
+  iso_checksum = local.iso_checksum
   iso_url =  local.iso_url
   shutdown_command = local.shutdown_command
   ssh_username = var.ssh_username
@@ -129,7 +126,7 @@ source "virtualbox-iso" "oi-hipster" {
   )
   boot_wait = local.boot_wait
   disk_size = local.disk_size
-  iso_checksum = var.iso_checksum
+  iso_checksum = local.iso_checksum
   iso_url = local.iso_url
   shutdown_command = local.shutdown_command
   ssh_username = var.ssh_username

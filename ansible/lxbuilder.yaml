@@ -1,6 +1,6 @@
 ---
 - name: Install lxbuilders
-  hosts: lxbuilders
+  hosts: localhost
 
   tasks:
     - name: Add hashicorp repository
@@ -48,6 +48,8 @@
           - qemu-kvm
           - virtinst
           - libvirt-daemon
+          - libvirt-daemon-system-systemd
+          - libvirt-daemon-config-network
 
     - name: Add docker repository
       block:
@@ -70,13 +72,19 @@
           - docker-buildx-plugin
           - docker-compose-plugin
 
-    - name: Install packer
+    - name: Add Helix repository
+      ansible.builtin.apt_repository:
+        repo: ppa:maveonair/helix-editor
+        state: present
+        update_cache: yes
+
+    - name: Install packer and vagrant packages
       ansible.builtin.apt:
         pkg:
           - packer
+          - vagrant-libvirt
 
-    - name: Remove useless packages from the cache
+    - name: Install helix-editor
       ansible.builtin.apt:
-        autoclean: yes
-        autoremove: yes
-        clean: true
+        pkg:
+          - helix
