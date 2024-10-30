@@ -42,4 +42,4 @@ publish-%: OI-hipster-$(BUILD_VERSION)-%.box
 	touch publish-$(*)
 
 clean:
-	rm -rf OI-hipster-$(BUILD_VERSION)-libvirt.box OI-hipster-$(BUILD_VERSION)-virtualbox.box test-libvirt test-virtualbox publish-libvirt publish-virtualbox Vagrantfile
+	rm -rf OI-hipster-$(BUILD_VERSION)-libvirt.box OI-hipster-$(BUILD_VERSION)-virtualbox.box test-libvirt test-virtualbox publish-libvirt publish-virtualbox Vagrantfile output
