@@ -21,7 +21,7 @@ if ! id -u "${VAGRANT_USER}" >/dev/null 2>&1; then
 fi
 
 echo '==> Enabling Vagrant authorized Keys file'
-echo '.ssh/authorized_keys.temp .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config
+echo 'AuthorizedKeysFile .ssh/authorized_keys.temp .ssh/authorized_keys .ssh/authorized_keys2' >> /etc/ssh/sshd_config
 
 echo '==> Installing Vagrant SSH key'
 mkdir -p "${VAGRANT_HOME}/.ssh"
